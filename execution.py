@@ -1,13 +1,14 @@
 import AI_sierpien2k21 as AI
-import data
 import time
 import pickle
 import numpy as np
+import data
 
 batch_size = 32
 if 60000%batch_size:
     print("error, put batch size, that 60 000 is divisible by")
-scanner = data.Input()
+scanner = data.Scanner()
+scanner.begin_stream()
 myAI = AI.NN([784,20,20,10])
 
 pkl_file = open('data.pkl', 'rb')
@@ -20,13 +21,15 @@ myAI.weights = data1["weights"]
 myAI.biases = data1["biases"]
 #indexes = data1["indexes"]
 print("actual_x: " + str(actual_x))
-
+print(actual_x)
+scanner.start_reading_data_from_index(actual_x)
+scanner.start_reading_labels_from_index(actual_x)
 try:
     while actual_epochs < 5:
         while actual_x < 60000:
-            answer = [0,0,0,0,0,0,0,0,0,0]
-            answer[scanner.get_answer(actual_x)] = 1
-            myAI.train(scanner.get_input(actual_x),answer, 1.5)
+            answer = [0 for x in range(10)]
+            answer[scanner.read_label()] = 1
+            myAI.train(scanner.read_data(),answer)
             if actual_x%batch_size == batch_size-1:
                 myAI.end_batch()
             actual_x += 1        
@@ -37,11 +40,12 @@ try:
         sum = 0.0
         false_predicts = 0
         for m in range(10000):
-            answer = [0,0,0,0,0,0,0,0,0,0]
-            answer[scanner.get_answer(m,False)] = 1
-            predict = myAI.give_answer(scanner.get_input(m,False))
+            answer = [0 for x in range(10)]
+            correct_answer = scanner.read_label(False)
+            answer[correct_answer] = 1
+            predict = myAI.give_answer(scanner.read_data(False))
             sum+=AI.calculate_cost(predict,answer)
-            if not np.argmax(predict) == scanner.get_answer(m,False):
+            if not np.argmax(predict) == correct_answer:
                 false_predicts += 1 
         print("average cost is: " + str(sum/10000))
         print("false predictions number: " + str(false_predicts))
@@ -56,9 +60,9 @@ try:
 except KeyboardInterrupt:
     print("finishing this batch...")
     while actual_x % batch_size:
-        answer = [0,0,0,0,0,0,0,0,0,0]
-        answer[scanner.get_answer(actual_x)] = 1
-        myAI.train(scanner.get_input(actual_x),answer)
+        answer = [0 for x in range(10)]
+        answer[scanner.read_label()] = 1
+        myAI.train(scanner.read_data(),answer)
         actual_x+=1
     myAI.end_batch()    
     print("saving...")
@@ -75,20 +79,3 @@ except KeyboardInterrupt:
     output.close()
     exit()
 
-sum = 0.0
-for m in range(10000):
-    answer = [0,0,0,0,0,0,0,0,0,0]
-    answer[scanner.get_answer(x,False)] = 1
-    sum+=AI.calculate_cost(myAI.give_answer(scanner.get_input(m,False)),answer)
-print("average cost is: " + str(sum/10000))
-info = {
-        "weights": myAI.weights,
-        "biases": myAI.biases,
-        "x": actual_x,
-        "epoch": actual_epochs,
-        #"indexes": indexes
-        }
-output = open('data.pkl', 'wb')
-pickle.dump(info, output)
-output.close()
-exit()

@@ -4,6 +4,9 @@ import data
 import matplotlib.pyplot as plt
 import numpy as np
 import time
+import math as m
+
+
 
 pkl_file = open('result3.pkl', 'rb')
 data1 = pickle.load(pkl_file)
@@ -14,7 +17,7 @@ myAI = ai.NN([28*28,20,20,10])
 myAI.weights = data1["weights"]
 myAI.biases = data1["biases"]
 
-scanner = data.Input()
+scanner = data.Scanner()
 """
 index = 0
 answer = myAI.give_answer(scanner.get_input(index,False))
@@ -26,26 +29,34 @@ print(f"Cost is equal to {ai.calculate_cost(answer,correct_answer)}")
 """
 random_image = np.random.randint(256, size=(784))
 
-
-
-answer = [0,0,0,0,0,0,0,0,0,0]
+scanner.begin_stream()
+"""
+#answer = [0 for x in range(10)]
+false_predicts = 0
 cost_sum = 0
-for index in range(59000,60000):
+for index in range(0,60000):
     start_time = time.time()
-    myAI.train(scanner.get_input(index),answer)
-    print((time.time() - start_time)*1000)
+    answer = myAI.give_answer(scanner.read_data(True))
+    #print((time.time() - start_time)*1000)
     correct_answer = [0 for x in range(10)]
-    correct_answer[scanner.get_answer(index,True)] = 1
+    correct_index = scanner.read_label(True)
+    correct_answer[correct_index] = 1
     cost_sum += ai.calculate_cost(answer,correct_answer)
-    
-    time.sleep(0.02)
-    #print(index)
-
-print(cost_sum/10000)
-
-plt.imshow(np.array(scanner.get_input(index,False)).reshape((28,28)))
-plt.show()
-
-
-
+    if not np.argmax(answer) == correct_index:
+        false_predicts += 1
+    print(index//600)
+print(cost_sum/60000)
+print(f"False predicts: {false_predicts}")
+"""
+average1 = 0.10640368660450422
+average2 = 0
+sigma = 0
+for x in range(10000):
+    for a in myAI.give_answer(scanner.read_data(True)):
+        average2 += a
+        sigma += abs(a - average1)
+    print(x//100)
+print(average2/(10*10000))
+print((sigma/(10*10000)))
+scanner.close_stream()
 
