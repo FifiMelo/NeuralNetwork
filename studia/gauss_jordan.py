@@ -54,5 +54,5 @@ def gauss_jordan_reduction(matrix):
     return matrix
 
 
-print(gauss_jordan_reduction([[1,2,4],[1,2,4]]))
+print(gauss_jordan_reduction([[1,2,4],[1,4,8]]))
         
