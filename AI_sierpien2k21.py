@@ -67,9 +67,7 @@ class NN:
     def give_answer(self, input): 
         actual_computation = input
         for x in range(self.layers_number - 1):
-            #start_time = time.time()
             actual_computation = np.dot(actual_computation, self.weights[x])
-            #print(int((time.time() - start_time)*1000))
             actual_computation = np.add(actual_computation, self.biases[x])
             actual_computation = vector_sigmoid(actual_computation)
         return(actual_computation)
@@ -83,6 +81,7 @@ class NN:
         actual_computation = input
         zees.append(input)
         neurons.append(input)
+        test_rate = 10
         #chain.append(np.zeros(shape=(self.structure[0])))
         for x in range(self.layers_number - 1):
             actual_computation = np.dot(actual_computation, self.weights[x])
@@ -92,7 +91,7 @@ class NN:
             chain.append(np.zeros(shape=(self.structure[x+1])))
             neurons.append(actual_computation)
         for x in range(self.structure[self.layers_number - 1]):
-            chain[self.layers_number-2][x] = 2*(neurons[self.layers_number - 1][x] - answer[x])
+            chain[self.layers_number-2][x] = 2*(neurons[self.layers_number - 1][x] - test_rate*answer[x])
         for layer in range(self.layers_number - 1)[::-1]:
             for Lneuron in range(self.structure[layer + 1]):
                 self.gradient.biases[layer][Lneuron] = chain[layer][Lneuron]*sigmoid_derivative(zees[layer+1][Lneuron])*learn_speed

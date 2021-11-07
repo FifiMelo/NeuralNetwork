@@ -77,5 +77,5 @@ except KeyboardInterrupt:
     output = open('data.pkl', 'wb')
     pickle.dump(info, output)
     output.close()
-    exit()
+    scanner.close_stream()
 
