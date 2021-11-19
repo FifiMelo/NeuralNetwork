@@ -9,7 +9,7 @@ def add_dots(start, stop):
         add_dots(B, stop)
 start_time = time.time()
 N = 23
-t = [0]*(3**N)
+t = [0]
 add_dots(0,3**N)
 t.append(3**N)
 print(time.time() - start_time)
