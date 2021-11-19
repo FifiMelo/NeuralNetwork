@@ -60,9 +60,6 @@ class NN:
             self.weights.append(np.random.uniform(low=-1.0, high=1.0, size=(structure[new_layer_index], structure[new_layer_index + 1])))
             self.biases.append(np.random.uniform(low=-1.0, high=1.0, size=(structure[new_layer_index + 1])))
         self.gradient = NegativeGradient(structure)
-        
-
-
 
     def give_answer(self, input): 
         actual_computation = input
@@ -71,8 +68,6 @@ class NN:
             actual_computation = np.add(actual_computation, self.biases[x])
             actual_computation = vector_sigmoid(actual_computation)
         return(actual_computation)
-
-
 
     def train(self,input, answer, learn_speed = 1.0):
         zees = []
